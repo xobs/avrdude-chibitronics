@@ -127,6 +127,8 @@ void pgm_fill_old_pins(struct programmer_t * const pgm) {
   pin_fill_old_pinno(&(pgm->pin[PIN_LED_RDY]),  &(pgm->pinno[PIN_LED_RDY]));
   pin_fill_old_pinno(&(pgm->pin[PIN_LED_PGM]),  &(pgm->pinno[PIN_LED_PGM]));
   pin_fill_old_pinno(&(pgm->pin[PIN_LED_VFY]),  &(pgm->pinno[PIN_LED_VFY]));
+  pin_fill_old_pinno(&(pgm->pin[PIN_TPI_DIR]),  &(pgm->pinno[PIN_TPI_DIR]));
+  pin_fill_old_pinno(&(pgm->pin[PIN_TPI_SIGNALS]),  &(pgm->pinno[PIN_TPI_SIGNALS]));
 
 }
 
@@ -361,6 +363,8 @@ const char * avr_pin_name(int pinname) {
   case PIN_LED_RDY   : return "RDYLED";
   case PIN_LED_PGM   : return "PGMLED";
   case PIN_LED_VFY   : return "VFYLED";
+  case PIN_TPI_DIR   : return "TPIDIR";
+  case PIN_TPI_SIGNALS : return "TPISIGNALS";
   default : return "<unknown>";
   }
 }

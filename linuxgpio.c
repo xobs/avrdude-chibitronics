@@ -311,6 +311,7 @@ static void linuxgpio_close(PROGRAMMER *pgm)
   }
 }
 
+
 void linuxgpio_initpgm(PROGRAMMER *pgm)
 {
   strcpy(pgm->type, "linuxgpio");

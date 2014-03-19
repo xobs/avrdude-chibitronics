@@ -238,6 +238,10 @@ void pgm_display_generic_mask(PROGRAMMER * pgm, const char * p, unsigned int sho
     fprintf(stderr, "%s  PGM LED = %s\n", p, pins_to_str(&pgm->pin[PIN_LED_PGM]));
   if(show & (1<<PIN_LED_VFY))
     fprintf(stderr, "%s  VFY LED = %s\n", p, pins_to_str(&pgm->pin[PIN_LED_VFY]));
+  if(show & (1<<PIN_TPI_DIR))
+    fprintf(stderr, "%s  TPI DIRECTION = %s\n", p, pins_to_str(&pgm->pin[PIN_TPI_DIR]));
+  if(show & (1<<PIN_TPI_SIGNALS))
+    fprintf(stderr, "%s  TPI SIGNALS = %s\n", p, pins_to_str(&pgm->pin[PIN_TPI_SIGNALS]));
 }
 
 void pgm_display_generic(PROGRAMMER * pgm, const char * p)

@@ -43,6 +43,11 @@
 
 static int delay_decrement;
 
+enum tpi_direction {
+  direction_input,
+  direction_output,
+};
+
 #if defined(WIN32NATIVE)
 static int has_perfcount;
 static LARGE_INTEGER freq;
@@ -213,6 +218,14 @@ static unsigned char bitbang_txrx(PROGRAMMER * pgm, unsigned char byte)
   return rbyte;
 }
 
+static void bitbang_tpi_direction(PROGRAMMER * pgm, enum tpi_direction dir)
+{
+  if (dir == direction_output)
+    pgm->setpin(pgm, PIN_TPI_DIR, 1);
+  else
+    pgm->setpin(pgm, PIN_TPI_DIR, 0);
+}
+
 static int bitbang_tpi_clk(PROGRAMMER * pgm) 
 {
   unsigned char r = 0;
@@ -222,13 +235,16 @@ static int bitbang_tpi_clk(PROGRAMMER * pgm)
 
   pgm->setpin(pgm, PIN_AVR_SCK, 0);
 
-  return r;
+  return !!r;
 }
 
 void bitbang_tpi_tx(PROGRAMMER * pgm, unsigned char byte) 
 {
   int i;
   unsigned char b, parity;
+
+  /* line used for output */
+  bitbang_tpi_direction(pgm, direction_output);
 
   /* start bit */
   pgm->setpin(pgm, PIN_AVR_MOSI, 0);
@@ -258,6 +274,9 @@ int bitbang_tpi_rx(PROGRAMMER * pgm)
 {
   int i;
   unsigned char b, rbyte, parity;
+
+  /* Line used for input */
+  bitbang_tpi_direction(pgm, direction_input);
 
   /* make sure pin is on for "pullup" */
   pgm->setpin(pgm, PIN_AVR_MOSI, 1);
@@ -376,7 +395,7 @@ int bitbang_cmd_tpi(PROGRAMMER * pgm, const unsigned char *cmd,
 
   if(verbose >= 2)
   {
-    fprintf(stderr, "bitbang_cmd_tpi(): [ ");
+    fprintf(stderr, "bitbang_cmd_tpi(%d, %d): [ ", cmd_len, res_len);
     for(i = 0; i < cmd_len; i++)
       fprintf(stderr, "%02X ", cmd[i]);
     fprintf(stderr, "] [ ");
@@ -537,10 +556,15 @@ int bitbang_initialize(PROGRAMMER * pgm, AVRPART * p)
   bitbang_calibrate_delay();
 
   pgm->powerup(pgm);
+  pgm->cmd_tpi = bitbang_cmd_tpi;
   usleep(20000);
 
   /* TPIDATA is a single line, so MISO & MOSI should be connected */
   if (p->flags & AVRPART_HAS_TPI) {
+    /* Must be tied high */
+    pgm->setpin(pgm, PIN_TPI_SIGNALS, 1);
+    bitbang_tpi_direction(pgm, direction_output);
+
     /* make sure cmd_tpi() is defined */
     if (pgm->cmd_tpi == NULL) {
       fprintf(stderr, "%s: Error: %s programmer does not support TPI\n",
@@ -555,6 +579,8 @@ int bitbang_initialize(PROGRAMMER * pgm, AVRPART * p)
     if (verbose >= 2)
       fprintf(stderr, "doing MOSI-MISO link check\n");
 
+    /*
+    bitbang_tpi_direction(pgm, direction_input);
     pgm->setpin(pgm, PIN_AVR_MOSI, 0);
     if (pgm->getpin(pgm, PIN_AVR_MISO) != 0) {
       fprintf(stderr, "MOSI->MISO 0 failed\n");
@@ -565,6 +591,7 @@ int bitbang_initialize(PROGRAMMER * pgm, AVRPART * p)
       fprintf(stderr, "MOSI->MISO 1 failed\n");
       return -1;
     }
+    */
 
     if (verbose >= 2)
       fprintf(stderr, "MOSI-MISO link present\n");
@@ -576,6 +603,7 @@ int bitbang_initialize(PROGRAMMER * pgm, AVRPART * p)
 
   if (p->flags & AVRPART_HAS_TPI) {
     /* keep TPIDATA high for 16 clock cycles */
+    pgm->setpin(pgm, PIN_AVR_SCK, 0);
     pgm->setpin(pgm, PIN_AVR_MOSI, 1);
     for (i = 0; i < 16; i++)
       pgm->highpulsepin(pgm, PIN_AVR_SCK);
@@ -650,6 +678,8 @@ void bitbang_check_prerequisites(PROGRAMMER *pgm)
   verify_pin_assigned(pgm, PIN_AVR_SCK,   "AVR SCK");
   verify_pin_assigned(pgm, PIN_AVR_MISO,  "AVR MISO");
   verify_pin_assigned(pgm, PIN_AVR_MOSI,  "AVR MOSI");
+  verify_pin_assigned(pgm, PIN_TPI_DIR,   "TPI DIRECTION");
+  verify_pin_assigned(pgm, PIN_TPI_SIGNALS, "TPI SIGNALS");
 
   if (pgm->cmd == NULL) {
     fprintf(stderr, "%s: error: no cmd() method defined for bitbang programmer\n",

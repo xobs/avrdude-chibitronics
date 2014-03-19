@@ -130,6 +130,8 @@ static int pin_name;
 %token K_TYPE
 %token K_VCC
 %token K_VFYLED
+%token K_DIR
+%token K_SIGNALS
 
 %token K_NO
 %token K_YES
@@ -603,7 +605,9 @@ prog_parm_pins:
   K_ERRLED TKN_EQUAL {pin_name = PIN_LED_ERR;  } pin_number |
   K_RDYLED TKN_EQUAL {pin_name = PIN_LED_RDY;  } pin_number |
   K_PGMLED TKN_EQUAL {pin_name = PIN_LED_PGM;  } pin_number |
-  K_VFYLED TKN_EQUAL {pin_name = PIN_LED_VFY;  } pin_number
+  K_VFYLED TKN_EQUAL {pin_name = PIN_LED_VFY;  } pin_number |
+  K_DIR    TKN_EQUAL {pin_name = PIN_TPI_DIR;  } pin_number |
+  K_SIGNALS TKN_EQUAL {pin_name = PIN_TPI_SIGNALS; } pin_number
 ;
 
 opcode :

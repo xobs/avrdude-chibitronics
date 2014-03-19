@@ -51,6 +51,8 @@ enum {
   PIN_LED_RDY,
   PIN_LED_PGM,
   PIN_LED_VFY,
+  PIN_TPI_DIR,
+  PIN_TPI_SIGNALS,
   N_PINS
 };
 

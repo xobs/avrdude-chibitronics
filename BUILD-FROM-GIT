@@ -2,6 +2,8 @@ $Id$
 
 How to build avrdude from git:
 
+Set CPPFLAGS to "-DHAVE_LINUX_GPIO"
+
 1. Make sure you have bison and flex installed
 
 2. git clone https://github.com/xobs/avrdude-chibitronics.git
