@@ -1,0 +1,15 @@
+$Id$
+
+How to build avrdude from git:
+
+1. Make sure you have bison and flex installed
+
+2. git clone https://github.com/xobs/avrdude-chibitronics.git
+
+3. cd avrdude
+
+3. ./bootstrap
+
+4. ./configure --enable-linuxgpio
+
+5. make
